@@ -30,8 +30,11 @@ const Home = () => {
           return view.goTo(options.target);
         },
       });
-
       view.ui.add(locate, "top-left");
+
+      view.when(() => {
+        locate.locate();
+      });
     }
   }, []);
 
