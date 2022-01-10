@@ -10,8 +10,12 @@ import Home from "./components/home/Home";
 import { observer } from "mobx-react-lite";
 import { Snackbar, Alert } from "@mui/material";
 import { useSnack } from "./hooks/useSnack";
+import esriConfig from "@arcgis/core/config";
 
 const DEFAULT_ROUTE = "/";
+const ESRI_API_KEY =
+  "AAPK4fb8e9ce7a384cbc9528d136d298a5d8G4WgtP59lif5y_uxke9pKgsDrdvRQjhC_D8DgRXbm0PJS4lc0TvTgRBM-oRSgw2O";
+const DEFAULT_ESRI_API_KEY = "https://js.arcgis.com/[4.x]/@arcgis/core/assets";
 
 const App = observer(() => {
   const { authenticated } = useContext(AuthContext);
@@ -20,6 +24,7 @@ const App = observer(() => {
 
   useEffect(() => {
     navigate.current(authenticated ? DEFAULT_ROUTE : "/login");
+    esriConfig.apiKey = authenticated ? ESRI_API_KEY : DEFAULT_ESRI_API_KEY;
   }, [authenticated]);
 
   return (
@@ -39,6 +44,7 @@ const App = observer(() => {
         </Route>
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<LogIn />} />
+        <Route path="/track" element={<PrivateRoute />}></Route>
       </Routes>
     </SnackbarContext.Provider>
   );

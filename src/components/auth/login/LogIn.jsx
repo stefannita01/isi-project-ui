@@ -20,7 +20,7 @@ const LogIn = () => {
   const { login } = useContext(AuthContext);
   const { setErrorSnack } = useContext(SnackbarContext);
 
-  const [formValues, handleChange] = useForm({ email: "", password: "" });
+  const [formValues, { handleChange }] = useForm({ email: "", password: "" });
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e) => {

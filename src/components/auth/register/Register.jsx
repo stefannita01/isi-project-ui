@@ -1,6 +1,14 @@
 import { useContext, useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, CircularProgress, TextField } from "@mui/material";
+import {
+  Button,
+  CircularProgress,
+  TextField,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+} from "@mui/material";
 import { Link } from "react-router-dom";
 import { useForm } from "../../../hooks/useForm";
 import { AuthContext } from "../../../contexts/authContext";
@@ -20,10 +28,11 @@ const Register = () => {
   const { setSuccessSnack, setErrorSnack } = useContext(SnackbarContext);
 
   const [isLoading, setIsLoading] = useState(false);
-  const [formValues, handleChange] = useForm({
+  const [formValues, { handleChange }] = useForm({
     email: "",
     password: "",
     phone: "",
+    userRole: "CLIENT",
   });
 
   const handleSubmit = async (e) => {
@@ -65,6 +74,22 @@ const Register = () => {
           value={formValues.phone}
           onChange={handleChange}
         />
+        <FormControl fullWidth>
+          <InputLabel id="register-form-account-type-label">
+            Account type
+          </InputLabel>
+          <Select
+            name="userRole"
+            id="register-form-account-type"
+            labelId="register-form-account-type-label"
+            value={formValues.userRole}
+            onChange={handleChange}
+            label="Account type"
+          >
+            <MenuItem value="CLIENT">Client</MenuItem>
+            <MenuItem value="TRANSPORTER">Transporter</MenuItem>
+          </Select>
+        </FormControl>
         {isLoading ? (
           <CircularProgress />
         ) : (

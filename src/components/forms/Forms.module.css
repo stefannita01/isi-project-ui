@@ -1,0 +1,8 @@
+.verticalForm {
+  display: flex;
+  flex-direction: column;
+}
+
+.verticalForm > div {
+  margin-bottom: 16px;
+}
