@@ -5,7 +5,6 @@ import { observer } from "mobx-react-lite";
 import CreateProductForm from "../forms/CreateProductForm";
 import CreateRequestForm from "../forms/CreateRequestForm";
 import { ProductsContext } from "../../contexts/productsContext";
-import { RequestsContext } from "../../contexts/requestsContext";
 
 const Home = observer(() => {
   const productsStore = useContext(ProductsContext);

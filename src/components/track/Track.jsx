@@ -1,6 +1,6 @@
 import MapView from "@arcgis/core/views/MapView";
 import WebMap from "@arcgis/core/WebMap";
-import { useRef, useEffect, useContext, useState } from "react";
+import { useRef, useEffect, useContext } from "react";
 import { RequestsContext } from "../../contexts/requestsContext";
 import { observer } from "mobx-react-lite";
 import Graphic from "@arcgis/core/Graphic";
