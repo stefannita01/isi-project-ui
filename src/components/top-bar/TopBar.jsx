@@ -20,9 +20,14 @@ const TopBar = observer(() => {
             edge="start"
             color="inherit"
             aria-label="menu"
-            sx={{ mr: 2, justifyContent: "space-between" }}
+            sx={{
+              mr: 2,
+              justifyContent: requestsStore.requests.length
+                ? "space-between"
+                : "flex-end",
+            }}
           >
-            {requestsStore.requests.length && (
+            {requestsStore.requests.length ? (
               <Button color="inherit">
                 <Link
                   style={{ textDecoration: "none", color: "inherit" }}
@@ -31,6 +36,8 @@ const TopBar = observer(() => {
                   Track
                 </Link>
               </Button>
+            ) : (
+              <></>
             )}
             <Button color="inherit" onClick={authStore.logout}>
               Log Out
