@@ -1,8 +1,16 @@
 import { AppBar, Box, Toolbar, Button } from "@mui/material";
 import { authStore } from "../../stores/authStore";
 import { Link } from "react-router-dom";
+import { useContext, useEffect } from "react";
+import { RequestsContext } from "../../contexts/requestsContext";
+import { observer } from "mobx-react-lite";
 
-const Home = () => {
+const TopBar = observer(() => {
+  const requestsStore = useContext(RequestsContext);
+  useEffect(() => {
+    requestsStore.initialize();
+  }, [requestsStore]);
+
   return (
     <>
       <Box sx={{ flexGrow: 1 }}>
@@ -12,8 +20,18 @@ const Home = () => {
             edge="start"
             color="inherit"
             aria-label="menu"
-            sx={{ mr: 2, flexDirection: "row-reverse" }}
+            sx={{ mr: 2, justifyContent: "space-between" }}
           >
+            {requestsStore.requests.length && (
+              <Button color="inherit">
+                <Link
+                  style={{ textDecoration: "none", color: "inherit" }}
+                  to="/track"
+                >
+                  Track
+                </Link>
+              </Button>
+            )}
             <Button color="inherit" onClick={authStore.logout}>
               Log Out
             </Button>
@@ -22,6 +40,6 @@ const Home = () => {
       </Box>
     </>
   );
-};
+});
 
-export default Home;
+export default TopBar;

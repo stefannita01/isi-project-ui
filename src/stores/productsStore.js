@@ -33,7 +33,7 @@ class ProductsStore {
     try {
       const products = await productsService.getAll();
       runInAction(() => {
-        this.products = products;
+        this.products = [...products];
       });
     } catch (err) {
       runInAction(() => {

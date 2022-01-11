@@ -13,7 +13,7 @@ const LogIn = () => {
 
   useEffect(() => {
     if (authenticated) {
-      navigate.current("/home");
+      navigate.current("/");
     }
   }, [authenticated]);
 

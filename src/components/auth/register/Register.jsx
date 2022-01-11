@@ -20,7 +20,7 @@ const Register = () => {
   const navigate = useRef(useNavigate());
   useEffect(() => {
     if (authenticated) {
-      navigate.current("/home");
+      navigate.current("/");
     }
   }, [authenticated]);
 

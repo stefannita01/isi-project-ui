@@ -7,10 +7,13 @@ import PrivateRoute from "./components/private-route/PrivateRoute";
 import Register from "./components/auth/register/Register";
 import LogIn from "./components/auth/login/LogIn";
 import Home from "./components/home/Home";
+import Track from "./components/track/Track";
+import TopBar from "./components/top-bar/TopBar";
 import { observer } from "mobx-react-lite";
 import { Snackbar, Alert } from "@mui/material";
 import { useSnack } from "./hooks/useSnack";
 import esriConfig from "@arcgis/core/config";
+import styles from "./components/home/Home.module.css";
 
 const DEFAULT_ROUTE = "/";
 const ESRI_API_KEY =
@@ -23,7 +26,9 @@ const App = observer(() => {
   const [snack, snackApi] = useSnack();
 
   useEffect(() => {
-    navigate.current(authenticated ? DEFAULT_ROUTE : "/login");
+    if (!authenticated) {
+      navigate.current("/login");
+    }
     esriConfig.apiKey = authenticated ? ESRI_API_KEY : DEFAULT_ESRI_API_KEY;
   }, [authenticated]);
 
@@ -38,14 +43,19 @@ const App = observer(() => {
       >
         <Alert severity={snack.severity}>{snack.message}</Alert>
       </Snackbar>
-      <Routes>
-        <Route path={DEFAULT_ROUTE} element={<PrivateRoute />}>
-          <Route path="" element={<Home />} />
-        </Route>
-        <Route path="/register" element={<Register />} />
-        <Route path="/login" element={<LogIn />} />
-        <Route path="/track" element={<PrivateRoute />}></Route>
-      </Routes>
+      {authenticated && <TopBar></TopBar>}
+      <div className={styles.appContent}>
+        <Routes>
+          <Route path={DEFAULT_ROUTE} element={<PrivateRoute />}>
+            <Route path="" element={<Home />} />
+          </Route>
+          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<LogIn />} />
+          <Route path="track" element={<PrivateRoute />}>
+            <Route path="" element={<Track />}></Route>
+          </Route>
+        </Routes>
+      </div>
     </SnackbarContext.Provider>
   );
 });
