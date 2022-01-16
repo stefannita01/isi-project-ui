@@ -5,8 +5,9 @@ import { observer } from "mobx-react-lite";
 import CreateProductForm from "../forms/CreateProductForm";
 import CreateRequestForm from "../forms/CreateRequestForm";
 import { ProductsContext } from "../../contexts/productsContext";
+import Requests from "../admin/requests/Requests";
 
-const Home = observer(() => {
+const Home = observer(({ role }) => {
   const productsStore = useContext(ProductsContext);
 
   useEffect(() => {
@@ -15,7 +16,7 @@ const Home = observer(() => {
 
   const products = productsStore.products;
 
-  return (
+  return role === "CLIENT" ? (
     <>
       <CreateProductForm></CreateProductForm>
       {productsStore.products.length ? (
@@ -24,6 +25,8 @@ const Home = observer(() => {
         <></>
       )}
     </>
+  ) : (
+    <Requests></Requests>
   );
 });
 

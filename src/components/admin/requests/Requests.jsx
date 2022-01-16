@@ -16,10 +16,10 @@ const Requests = observer(() => {
         <TableHead>
           <TableRow>
             <TableCell align="right">
-              <strong>Pickup address</strong>
+              <strong>Pickup</strong>
             </TableCell>
             <TableCell align="right">
-              <strong>Drop-off address</strong>
+              <strong>Drop-off</strong>
             </TableCell>
             <TableCell align="right">
               <strong>Product name</strong>

@@ -24,6 +24,7 @@ class AuthStore {
     const localToken = this._getAccessToken();
     this.authenticated = localToken === null ? false : true;
     this.token = localToken;
+    this._extractAndSetUser(localToken);
   }
 
   register = async (data) => authService.register(data);

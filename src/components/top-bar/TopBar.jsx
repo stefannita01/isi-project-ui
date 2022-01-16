@@ -5,7 +5,17 @@ import { useContext, useEffect } from "react";
 import { RequestsContext } from "../../contexts/requestsContext";
 import { observer } from "mobx-react-lite";
 
-const TopBar = observer(() => {
+const NavButton = ({ to, children }) => {
+  return (
+    <Button color="inherit">
+      <Link style={{ textDecoration: "none", color: "inherit" }} to={to}>
+        {children}
+      </Link>
+    </Button>
+  );
+};
+
+const TopBar = observer(({ role }) => {
   const requestsStore = useContext(RequestsContext);
   useEffect(() => {
     requestsStore.initialize();
@@ -22,23 +32,23 @@ const TopBar = observer(() => {
             aria-label="menu"
             sx={{
               mr: 2,
-              justifyContent: requestsStore.requests.length
-                ? "space-between"
-                : "flex-end",
+              justifyContent: "flex-end",
             }}
           >
-            {requestsStore.requests.length ? (
-              <Button color="inherit">
-                <Link
-                  style={{ textDecoration: "none", color: "inherit" }}
-                  to="/track"
-                >
-                  Track
-                </Link>
-              </Button>
-            ) : (
-              <></>
+            <NavButton to="/">Home</NavButton>
+            {role === "CLIENT" && (
+              <>
+                {requestsStore.requests.length > 0 && (
+                  <NavButton to="/track">Track</NavButton>
+                )}
+              </>
             )}
+            {role === "CARRIER" && (
+              <>
+                <NavButton to="/trucks">Trucks</NavButton>
+              </>
+            )}
+
             <Button color="inherit" onClick={authStore.logout}>
               Log Out
             </Button>

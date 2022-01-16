@@ -87,7 +87,7 @@ const Register = () => {
             label="Account type"
           >
             <MenuItem value="CLIENT">Client</MenuItem>
-            <MenuItem value="TRANSPORTER">Transporter</MenuItem>
+            <MenuItem value="CARRIER">Transporter</MenuItem>
           </Select>
         </FormControl>
         {isLoading ? (

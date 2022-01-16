@@ -15,6 +15,8 @@ import { useSnack } from "./hooks/useSnack";
 import esriConfig from "@arcgis/core/config";
 import styles from "./components/home/Home.module.css";
 import Requests from "./components/admin/requests/Requests";
+import NotFound from "./components/not-found/NotFound";
+import Trucks from "./components/trucks/Trucks";
 
 const DEFAULT_ROUTE = "/";
 const ESRI_API_KEY =
@@ -22,7 +24,7 @@ const ESRI_API_KEY =
 const DEFAULT_ESRI_API_KEY = "https://js.arcgis.com/[4.x]/@arcgis/core/assets";
 
 const App = observer(() => {
-  const { authenticated } = useContext(AuthContext);
+  const { authenticated, user } = useContext(AuthContext);
   const navigate = useRef(useNavigate());
   const [snack, snackApi] = useSnack();
 
@@ -44,18 +46,25 @@ const App = observer(() => {
       >
         <Alert severity={snack.severity}>{snack.message}</Alert>
       </Snackbar>
-      {authenticated && <TopBar></TopBar>}
+      {authenticated && <TopBar role={user.role}></TopBar>}
       <div className={styles.appContent}>
         <Routes>
+          <Route path="*" element={<NotFound />} />
           <Route path={DEFAULT_ROUTE} element={<PrivateRoute />}>
-            <Route path="" element={<Home />} />
+            <Route path="/" element={<Home role={user.role} />} />
           </Route>
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<LogIn />} />
           <Route path="track" element={<PrivateRoute />}>
             <Route path="" element={<Track />}></Route>
           </Route>
-          <Route path="requests" element={<Requests />} />
+          <>
+            {authenticated && user.role === "CARRIER" && (
+              <>
+                <Route path="trucks" element={<Trucks />} />
+              </>
+            )}
+          </>
         </Routes>
       </div>
     </SnackbarContext.Provider>
