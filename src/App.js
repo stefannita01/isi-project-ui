@@ -14,6 +14,7 @@ import { Snackbar, Alert } from "@mui/material";
 import { useSnack } from "./hooks/useSnack";
 import esriConfig from "@arcgis/core/config";
 import styles from "./components/home/Home.module.css";
+import Requests from "./components/admin/requests/Requests";
 
 const DEFAULT_ROUTE = "/";
 const ESRI_API_KEY =
@@ -54,6 +55,7 @@ const App = observer(() => {
           <Route path="track" element={<PrivateRoute />}>
             <Route path="" element={<Track />}></Route>
           </Route>
+          <Route path="requests" element={<Requests />} />
         </Routes>
       </div>
     </SnackbarContext.Provider>

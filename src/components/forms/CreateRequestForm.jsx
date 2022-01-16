@@ -21,14 +21,16 @@ import { geocodeService } from "../../services/geocodeService";
 import LocalizationProvider from "@mui/lab/LocalizationProvider";
 import DateAdapter from "@mui/lab/AdapterDayjs";
 import DesktopDatePicker from "@mui/lab/DesktopDatePicker";
+import { values } from "mobx";
 
 const CreateProductForm = observer(({ products }) => {
   const [formValues, { handleChange, reset }] = useForm({
     productId: "",
-    pickupLocation: { longitude: "", latitude: "" },
-    dropOffLocation: { longitude: "", latitude: "" },
+    pickupLocation: { longitude: "", latitude: "", address: "" },
+    dropOffLocation: { longitude: "", latitude: "", address: "" },
     pickUpDate: new Date().toISOString().split("T")[0],
     dropOffDate: new Date().toISOString().split("T")[0],
+    quantity: "",
   });
   const mapDiv = useRef(null);
 
@@ -37,8 +39,6 @@ const CreateProductForm = observer(({ products }) => {
 
   const [pickupCoordinates, setpickupCoordinates] = useState([]);
   const [dropOffCoordinates, setdropOffCoordinates] = useState([]);
-  const [pickupAddress, setPickupAddress] = useState("");
-  const [dropOffAddress, setDropOffAddress] = useState("");
 
   useEffect(async () => {
     if (pickupCoordinates.length) {
@@ -49,18 +49,18 @@ const CreateProductForm = observer(({ products }) => {
           value: {
             longitude: pickupCoordinates[0],
             latitude: pickupCoordinates[1],
+            address: locatorResponse.address,
           },
         },
       });
-      setPickupAddress(locatorResponse.address);
     } else {
-      setPickupAddress("");
       handleChange({
         target: {
           name: "pickupLocation",
           value: {
             longitude: "",
             latitude: "",
+            address: "",
           },
         },
       });
@@ -78,18 +78,18 @@ const CreateProductForm = observer(({ products }) => {
           value: {
             longitude: dropOffCoordinates[0],
             latitude: dropOffCoordinates[1],
+            address: locatorResponse.address,
           },
         },
       });
-      setDropOffAddress(locatorResponse.address);
     } else {
-      setDropOffAddress("");
       handleChange({
         target: {
           name: "dropOffLocation",
           value: {
             longitude: "",
             latitude: "",
+            address: "",
           },
         },
       });
@@ -170,18 +170,18 @@ const CreateProductForm = observer(({ products }) => {
               </TextField>
               <TextField
                 label={`Pickup location ${
-                  pickupAddress ? "" : "(select on map)"
+                  formValues.pickupLocation.address ? "" : "(select on map)"
                 }`}
                 name="pickupAddress"
-                value={pickupAddress}
+                value={formValues.pickupLocation.address}
                 disabled
               />
               <TextField
                 label={`Drop-off location ${
-                  dropOffAddress ? "" : "(select on map)"
+                  formValues.dropOffLocation.address ? "" : "(select on map)"
                 }`}
                 name="dropOffAddress"
-                value={dropOffAddress}
+                value={formValues.dropOffLocation.address}
                 disabled
               />
               <TextField
@@ -212,6 +212,13 @@ const CreateProductForm = observer(({ products }) => {
                 renderInput={(params) => (
                   <TextField {...params} required={false} />
                 )}
+              />
+              <TextField
+                label="Quantity"
+                name="quantity"
+                type="number"
+                value={formValues.quantity}
+                onChange={handleChange}
               />
               <div style={{ height: "35vh", width: "100%" }} ref={mapDiv}></div>
 
