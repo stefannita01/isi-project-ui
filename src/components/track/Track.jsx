@@ -1,9 +1,9 @@
 import MapView from "@arcgis/core/views/MapView";
 import WebMap from "@arcgis/core/WebMap";
+import Graphic from "@arcgis/core/Graphic";
 import { useRef, useEffect, useContext } from "react";
 import { RequestsContext } from "../../contexts/requestsContext";
 import { observer } from "mobx-react-lite";
-import Graphic from "@arcgis/core/Graphic";
 import { routeService } from "../../services/routeService";
 
 const Track = observer(() => {
