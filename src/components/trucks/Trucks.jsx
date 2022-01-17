@@ -31,7 +31,7 @@ const Trucks = observer(() => {
             attributes: {
               id: truck.id,
               location: truck.position.address,
-              busy: truck.busy,
+              busy: truck.busy ? 1 : 0,
             },
           })
       )
@@ -56,12 +56,30 @@ const Trucks = observer(() => {
           {
             name: "busy",
             alias: "busy",
-            type: "string",
+            type: "integer",
           },
         ],
+        objectIdField: "id",
         popupTemplate: {
-          title: "Truck #{id}, busy: {busy}",
+          title: ({ graphic: { attributes } }) =>
+            `Truck #${attributes.id}, ${attributes.busy ? "busy" : "free"}`,
           content: "{location}",
+          outFields: ["*"],
+        },
+        renderer: {
+          type: "unique-value",
+          field: "busy",
+          defaultSymbol: { type: "simple-marker", color: "black", size: "8px" },
+          uniqueValueInfos: [
+            {
+              value: 1,
+              symbol: { type: "simple-marker", color: "red", size: "8px" },
+            },
+            {
+              value: 0,
+              symbol: { type: "simple-marker", color: "green", size: "8px" },
+            },
+          ],
         },
       }),
     [trucksGraphics]
