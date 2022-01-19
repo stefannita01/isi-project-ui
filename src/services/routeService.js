@@ -9,7 +9,7 @@ export const routeService = {
   getRoute: async (graphics) => {
     const routeParams = new RouteParameters({
       stops: new FeatureSet({
-        features: graphics.toArray(),
+        features: graphics,
       }),
     });
     const response = await route.solve(serviceUrl, routeParams);
@@ -20,6 +20,6 @@ export const routeService = {
         width: 3,
       };
     });
-    return response.routeResults;
+    return response.routeResults[0].route;
   },
 };

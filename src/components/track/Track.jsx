@@ -1,93 +1,124 @@
-import MapView from "@arcgis/core/views/MapView";
-import WebMap from "@arcgis/core/WebMap";
-import Graphic from "@arcgis/core/Graphic";
-import { useRef, useEffect, useContext } from "react";
+import { useRef, useEffect, useContext, useState, useMemo } from "react";
 import { RequestsContext } from "../../contexts/requestsContext";
 import { observer } from "mobx-react-lite";
 import { routeService } from "../../services/routeService";
+import { requestRouteFeatureLayerFactory } from "./requestRouteFeatureLayerFactory";
+import { requestPointsFeatureLayerFactory } from "./requestPointsFeatureLayerFactory";
+import Radio from "@mui/material/Radio";
+import RadioGroup from "@mui/material/RadioGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Map from "../arcgis/Map";
+import Graphic from "@arcgis/core/Graphic";
+import { BUSY_TRUCK } from "../../constants/graphicsConstants";
 
 const Track = observer(() => {
-  const { requests } = useContext(RequestsContext);
-  const mapDiv = useRef(null);
+  const { requests, getRequestById } = useContext(RequestsContext);
+  const mapViewRef = useRef();
+  const [trackedRequestId, setTrackedRequestId] = useState(null);
+  const [trackedRequestPointsGraphics, setTrackedRequestPointsGraphics] =
+    useState([]);
+  const [trackedRequestRouteGraphic, setTrackedRequestRouteGraphic] = useState(
+    []
+  );
+  const [currentTruckPoint, setCurrentTruckPoint] = useState(null);
+  const [currentTimeouts, setCurrentTimeouts] = useState([]);
+
+  // new route id selected: get request points
   useEffect(async () => {
-    if (requests?.length) {
-      if (mapDiv.current) {
-        const map = new WebMap({
-          basemap: "arcgis-navigation",
-        });
-        const view = new MapView({
-          center: [-118.24532, 34.05398], //Longitude, latitude
-          zoom: 14,
-        });
-        view.container = mapDiv.current;
-        view.map = map;
+    if (trackedRequestId !== null) {
+      const request = await getRequestById(trackedRequestId);
+      const requestGraphics = [
+        request.pickupLocation,
+        request.dropOffLocation,
+      ].map(pointToGraphic);
 
-        const request = requests[0];
-        const pickupPoint = new Graphic({
-          geometry: {
-            type: "point",
-            latitude: request.pickupLocation.latitude,
-            longitude: request.pickupLocation.longitude,
-          },
-          symbol: {
-            type: "simple-marker",
-            color: "white",
-            size: "8px",
-          },
-        });
-        const dropOffPoint = new Graphic({
-          geometry: {
-            type: "point",
-            latitude: request.dropOffLocation.latitude,
-            longitude: request.dropOffLocation.longitude,
-          },
-          symbol: {
-            type: "simple-marker",
-            color: "black",
-            size: "8px",
-          },
-        });
+      setTrackedRequestPointsGraphics(requestGraphics);
+      currentTimeouts.forEach(clearTimeout);
+      setCurrentTimeouts([]);
+    }
+  }, [trackedRequestId]);
 
-        view.graphics.add(pickupPoint);
-        view.graphics.add(dropOffPoint);
+  // new request points: get request route
+  useEffect(async () => {
+    const route = await routeService.getRoute(trackedRequestPointsGraphics);
+    setTrackedRequestRouteGraphic([route]);
+  }, [trackedRequestPointsGraphics]);
 
-        const routeResponse = await routeService.getRoute(view.graphics);
-        const trackTruck = (paths) => {
-          let currentPoint;
-          paths.forEach(([x, y], i) => {
-            setTimeout(() => {
-              if (currentPoint) {
-                view.graphics.remove(currentPoint);
-              }
-              currentPoint = new Graphic({
+  const requestPointsLayer = useMemo(
+    () => requestPointsFeatureLayerFactory(trackedRequestPointsGraphics),
+    [trackedRequestPointsGraphics]
+  );
+
+  const routeLayer = useMemo(
+    () => requestRouteFeatureLayerFactory(trackedRequestRouteGraphic),
+    [trackedRequestRouteGraphic]
+  );
+
+  useEffect(() => {
+    if (trackedRequestRouteGraphic.length) {
+      setCurrentTimeouts(
+        trackedRequestRouteGraphic[0].geometry.paths[0].map(([x, y], i) =>
+          setTimeout(() => {
+            setCurrentTruckPoint(
+              new Graphic({
                 geometry: {
                   type: "point",
                   longitude: x,
                   latitude: y,
                 },
-                symbol: {
-                  type: "simple-marker",
-                  color: "red",
-                  size: "10px",
-                },
-              });
-              view.graphics.add(currentPoint);
-            }, i * 500);
-          });
-        };
-        routeResponse.forEach((result) => {
-          view.graphics.add(result.route);
-          trackTruck(result.route.geometry.paths[0]);
-        });
-      }
+                symbol: BUSY_TRUCK,
+              })
+            );
+          }, i * 500)
+        )
+      );
     }
-  }, [requests]);
+  }, [routeLayer]);
+
+  useEffect(() => {
+    mapViewRef.current.view.graphics.removeAll();
+    currentTruckPoint &&
+      mapViewRef.current.view.graphics.add(currentTruckPoint);
+  }, [currentTruckPoint]);
 
   return (
     <>
-      <div ref={mapDiv} style={{ height: "50vh", width: "100%" }}></div>
+      <h2>Select a request to track</h2>
+      <RadioGroup
+        value={trackedRequestId}
+        onChange={(e) => {
+          setTrackedRequestId(e.target.value);
+        }}
+      >
+        {requests.map((request) => (
+          <FormControlLabel
+            key={request.id}
+            value={request.id}
+            control={<Radio />}
+            label={getRequestLabel(request)}
+          />
+        ))}
+      </RadioGroup>
+      <Map ref={mapViewRef} layers={[routeLayer, requestPointsLayer]} />
     </>
   );
 });
 
 export default Track;
+
+///
+
+const pointToGraphic = ({ longitude, latitude, id }, i) => ({
+  geometry: {
+    type: "point",
+    longitude,
+    latitude,
+  },
+  attributes: {
+    ObjectId: id,
+    pickup: 1 - (i % 2),
+  },
+});
+
+const getRequestLabel = (request) =>
+  `Request #${request.id}: ${request.quantity} ${request.product.type} from ${request.pickupLocation.address} to ${request.dropOffLocation.address}`;

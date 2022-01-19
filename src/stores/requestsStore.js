@@ -9,7 +9,7 @@ class RequestsStore {
   }
 
   getRequestById = async (id) => {
-    const local = this.requests.find((request) => request.id === id);
+    const local = this.requests.find((request) => request.id === parseInt(id));
     if (local) return local;
     const remote = await requestsService.getRequest(id);
     runInAction(() => {
