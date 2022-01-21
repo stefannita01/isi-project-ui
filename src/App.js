@@ -19,6 +19,7 @@ import NotFound from "./components/not-found/NotFound";
 import Trucks from "./components/trucks/Trucks";
 
 // work laptop test commit
+// testing local project git config
 
 const DEFAULT_ROUTE = "/";
 const ESRI_API_KEY =
