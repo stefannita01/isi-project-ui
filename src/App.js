@@ -53,21 +53,26 @@ const App = observer(() => {
       <div className={styles.appContent}>
         <Routes>
           <Route path="*" element={<NotFound />} />
-          <Route path={DEFAULT_ROUTE} element={<PrivateRoute />}>
-            <Route path="/" element={<Home role={user.role} />} />
-          </Route>
+          {authenticated && (
+            <>
+              <Route path={DEFAULT_ROUTE} element={<PrivateRoute />}>
+                <Route path="/" element={<Home role={user.role} />} />
+              </Route>
+              {user.role === "CLIENT" && (
+                <>
+                  <Route path="track" element={<Track />} />
+                </>
+              )}
+              {user.role === "CARRIER" && (
+                <>
+                  <Route path="trucks" element={<Trucks />} />
+                </>
+              )}
+            </>
+          )}
+
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<LogIn />} />
-          {authenticated && user.role === "CLIENT" && (
-            <>
-              <Route path="track" element={<Track />} />
-            </>
-          )}
-          {authenticated && user.role === "CARRIER" && (
-            <>
-              <Route path="trucks" element={<Trucks />} />
-            </>
-          )}
         </Routes>
       </div>
     </SnackbarContext.Provider>
