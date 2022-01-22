@@ -14,6 +14,14 @@ class TrucksStore {
       this.trucks = [...trucks];
     });
   };
+
+  createTruck = async (truckDetails) => {
+    const truck = await trucksService.createTruck(truckDetails);
+    runInAction(() => {
+      this.trucks.push(truck);
+    });
+    return truck;
+  };
 }
 
 export const trucksStore = new TrucksStore();
