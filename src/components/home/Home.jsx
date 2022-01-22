@@ -1,11 +1,13 @@
 import React, { useEffect, useContext } from "react";
-// import Locate from "@arcgis/core/widgets/Locate";
-// import Track from "@arcgis/core/widgets/Track";
 import { observer } from "mobx-react-lite";
 import CreateProductForm from "../forms/CreateProductForm";
 import CreateRequestForm from "../forms/CreateRequestForm";
 import { ProductsContext } from "../../contexts/productsContext";
 import Requests from "../admin/requests/Requests";
+import Users from "../admin/users/Users";
+import { EUserRole } from "../../constants/EUserRole";
+import NotFound from "../not-found/NotFound";
+import Banned from "../banned/Banned";
 
 const Home = observer(({ role }) => {
   const productsStore = useContext(ProductsContext);
@@ -16,18 +18,27 @@ const Home = observer(({ role }) => {
 
   const products = productsStore.products;
 
-  return role === "CLIENT" ? (
-    <>
-      <CreateProductForm></CreateProductForm>
-      {productsStore.products.length ? (
-        <CreateRequestForm products={[...products]}></CreateRequestForm>
-      ) : (
-        <></>
-      )}
-    </>
-  ) : (
-    <Requests></Requests>
-  );
+  switch (role) {
+    case EUserRole.ADMIN:
+      return <Users />;
+    case EUserRole.BANNED:
+      return <Banned />;
+    case EUserRole.CARRIER:
+      return <Requests />;
+    case EUserRole.CLIENT:
+      return (
+        <>
+          <CreateProductForm></CreateProductForm>
+          {productsStore.products.length ? (
+            <CreateRequestForm products={[...products]}></CreateRequestForm>
+          ) : (
+            <></>
+          )}
+        </>
+      );
+    default:
+      return <NotFound />;
+  }
 });
 
 export default Home;
