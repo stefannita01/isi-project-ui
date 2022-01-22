@@ -5,6 +5,7 @@ import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
+import AcceptRequest from "./AcceptRequest";
 import { observer } from "mobx-react-lite";
 
 const Requests = observer(() => {
@@ -15,6 +16,7 @@ const Requests = observer(() => {
       <Table>
         <TableHead>
           <TableRow>
+            <TableCell></TableCell>
             <TableCell align="right">
               <strong>Pickup</strong>
             </TableCell>
@@ -44,6 +46,14 @@ const Requests = observer(() => {
         <TableBody>
           {requests.map((request) => (
             <TableRow key={request.id}>
+              <TableCell align="center">
+                <AcceptRequest
+                  requestId={request.id}
+                  weight={request.product.weight}
+                  volume={request.product.volume}
+                  quantity={request.quantity}
+                ></AcceptRequest>
+              </TableCell>
               <TableCell align="right">
                 {request.pickupLocation.address}
               </TableCell>
