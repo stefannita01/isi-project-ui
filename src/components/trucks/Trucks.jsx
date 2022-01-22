@@ -190,7 +190,7 @@ const Trucks = observer(() => {
               />
               <TextField
                 value={addTruckFormValues.position.address}
-                label="position (select on map)"
+                label="Position (select on map)"
                 disabled
               />
               <CardActions sx={{ justifyContent: "flex-end" }}>

@@ -21,7 +21,6 @@ import { geocodeService } from "../../services/geocodeService";
 import LocalizationProvider from "@mui/lab/LocalizationProvider";
 import DateAdapter from "@mui/lab/AdapterDayjs";
 import DesktopDatePicker from "@mui/lab/DesktopDatePicker";
-import { values } from "mobx";
 
 const CreateProductForm = observer(({ products }) => {
   const [formValues, { handleChange, reset }] = useForm({
@@ -39,6 +38,12 @@ const CreateProductForm = observer(({ products }) => {
 
   const [pickupCoordinates, setpickupCoordinates] = useState([]);
   const [dropOffCoordinates, setdropOffCoordinates] = useState([]);
+
+  const resetForm = () => {
+    setpickupCoordinates([]);
+    setdropOffCoordinates([]);
+    reset();
+  };
 
   useEffect(async () => {
     if (pickupCoordinates.length) {
@@ -142,7 +147,7 @@ const CreateProductForm = observer(({ products }) => {
     try {
       await requestsService.createRequest(formValues);
       setSuccessSnack("Request added");
-      reset();
+      resetForm();
     } catch (err) {
       setErrorSnack(err.message);
     }
@@ -227,7 +232,7 @@ const CreateProductForm = observer(({ products }) => {
                   <CircularProgress />
                 ) : (
                   <>
-                    <Button type="button" color="error" onClick={reset}>
+                    <Button type="button" color="error" onClick={resetForm}>
                       Reset
                     </Button>
                     <Button type="submit">Submit</Button>
