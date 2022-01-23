@@ -65,7 +65,10 @@ const App = observer(() => {
               )}
               {user.role === "CARRIER" && (
                 <>
-                  <Route path="trucks" element={<Trucks />} />
+                  <Route
+                    path="trucks"
+                    element={<Trucks canAddTruck={true} />}
+                  />
                 </>
               )}
             </>
