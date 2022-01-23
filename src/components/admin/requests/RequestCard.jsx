@@ -8,9 +8,13 @@ import {
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
-const RequestCard = ({ request }) => {
+const RequestCard = ({ request, expanded, onChange }) => {
   return (
-    <Accordion sx={{ marginBottom: "16px" }}>
+    <Accordion
+      expanded={expanded}
+      onChange={() => onChange()}
+      sx={{ marginBottom: "16px" }}
+    >
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
         <Typography variant="h6">
           {request.quantity} {request.product.type}
@@ -23,9 +27,6 @@ const RequestCard = ({ request }) => {
         </Typography>
       </AccordionDetails>
       <AccordionActions>
-        <Button type="button" color="error">
-          Cancel
-        </Button>
         <Button type="button">Accept</Button>
       </AccordionActions>
     </Accordion>

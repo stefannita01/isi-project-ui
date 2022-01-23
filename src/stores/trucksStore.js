@@ -18,7 +18,7 @@ class TrucksStore {
   createTruck = async (truckDetails) => {
     const truck = await trucksService.createTruck(truckDetails);
     runInAction(() => {
-      this.trucks.push(truck);
+      this.trucks = [...this.trucks, truck];
     });
     return truck;
   };

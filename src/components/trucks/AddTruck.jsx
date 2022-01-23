@@ -34,6 +34,11 @@ const AddTruck = ({ mapViewRef, onOpenStatusChange }) => {
     },
   });
 
+  const resetAndClearMap = () => {
+    mapViewRef.current.view.graphics.removeAll();
+    reset();
+  };
+
   const { setSuccessSnack, setErrorSnack } = useContext(SnackbarContext);
 
   const toggleAddTruckForm = () => {
@@ -103,6 +108,7 @@ const AddTruck = ({ mapViewRef, onOpenStatusChange }) => {
         });
       const truck = await trucksStore.createTruck(addTruckFormValues);
       setSuccessSnack(`Created truck #${truck.id}`);
+      resetAndClearMap();
     } catch (err) {
       setErrorSnack(err.message);
     } finally {
@@ -157,7 +163,11 @@ const AddTruck = ({ mapViewRef, onOpenStatusChange }) => {
                 <CircularProgress />
               ) : (
                 <>
-                  <Button type="button" color="error" onClick={reset}>
+                  <Button
+                    type="button"
+                    color="error"
+                    onClick={resetAndClearMap}
+                  >
                     Reset
                   </Button>
                   <Button type="submit">Submit</Button>

@@ -1,11 +1,9 @@
 import { observer } from "mobx-react-lite";
-import { useEffect, useMemo, useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { trucksStore } from "../../stores/trucksStore";
-import { trucksFeatureLayerFactory } from "./trucksFeatureLayerFactory";
-import Graphic from "@arcgis/core/Graphic";
 import Map from "../arcgis/Map";
-import { autorun } from "mobx";
 import AddTruck from "./AddTruck";
+import { useTrucksLayer } from "../../hooks/trucksLayer/useTrucksLayer";
 
 const Trucks = observer(({ canAddTruck }) => {
   const mapViewRef = useRef();
@@ -18,46 +16,19 @@ const Trucks = observer(({ canAddTruck }) => {
     initializeTrucksStore();
   }, []);
 
-  const [trucksGraphics, setTrucksGraphics] = useState([]);
   const [addTruckFormOpen, setAddTruckFormOpen] = useState(false);
 
-  useEffect(() => {
-    autorun(() => {
-      setTrucksGraphics(
-        trucksStore.trucks.map(
-          (truck) =>
-            new Graphic({
-              geometry: {
-                type: "point",
-                latitude: truck.position.latitude,
-                longitude: truck.position.longitude,
-              },
-              attributes: {
-                id: truck.id,
-                location: truck.position.address,
-                busy: truck.busy ? 1 : 0,
-              },
-            })
-        )
-      );
-    });
-  }, []);
-
-  const trucksLayer = useMemo(
-    () => trucksFeatureLayerFactory(trucksGraphics),
-    [trucksGraphics]
-  );
+  const trucksLayer = useTrucksLayer(trucksStore.trucks);
 
   return (
     <>
+      <Map ref={mapViewRef} layers={addTruckFormOpen ? [] : [trucksLayer]} />
       {canAddTruck && (
         <AddTruck
           mapViewRef={mapViewRef}
           onOpenStatusChange={(isOpen) => setAddTruckFormOpen(isOpen)}
         />
       )}
-
-      <Map ref={mapViewRef} layers={addTruckFormOpen ? [] : [trucksLayer]} />
     </>
   );
 });
