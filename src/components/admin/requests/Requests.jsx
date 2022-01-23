@@ -48,12 +48,7 @@ const Requests = observer(() => {
             {requests.map((request) => (
               <TableRow key={request.id}>
                 <TableCell align="center">
-                  <AcceptRequest
-                    requestId={request.id}
-                    weight={request.product.weight}
-                    volume={request.product.volume}
-                    quantity={request.quantity}
-                  ></AcceptRequest>
+                  <AcceptRequest request={request}></AcceptRequest>
                 </TableCell>
                 <TableCell align="right">
                   {request.pickupLocation.address}

@@ -27,7 +27,7 @@ const CreateProductForm = observer(({ products }) => {
     productId: "",
     pickupLocation: { longitude: "", latitude: "", address: "" },
     dropOffLocation: { longitude: "", latitude: "", address: "" },
-    pickUpDate: new Date().toISOString().split("T")[0],
+    pickupDate: new Date().toISOString().split("T")[0],
     dropOffDate: new Date().toISOString().split("T")[0],
     quantity: "",
   });
@@ -200,9 +200,9 @@ const CreateProductForm = observer(({ products }) => {
                 label="Pickup date"
                 inputFormat="YYYY-MM-DD"
                 onChange={(value) =>
-                  handleChange({ target: { name: "pickUpDate", value } })
+                  handleChange({ target: { name: "pickupDate", value } })
                 }
-                value={formValues.pickUpDate}
+                value={formValues.pickupDate}
                 renderInput={(params) => (
                   <TextField {...params} required={false} />
                 )}

@@ -9,7 +9,7 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 
-const AcceptRequest = ({ requestId, weight, volume, quantity }) => {
+const AcceptRequest = ({ request }) => {
   const { setSuccessSnack, setErrorSnack } = useContext(SnackbarContext);
 
   const [isLoading, setIsLoading] = useState(false);
@@ -21,11 +21,7 @@ const AcceptRequest = ({ requestId, weight, volume, quantity }) => {
     setIsLoading(true);
 
     try {
-      const suitableTrucks = await trucksService.getSuitableTrucks(
-        weight,
-        volume,
-        quantity
-      );
+      const suitableTrucks = await trucksService.getSuitableTrucks(request.id);
       suitableTrucks.length
         ? setTrucks(suitableTrucks)
         : setNoTrucksFound(true);
@@ -40,7 +36,7 @@ const AcceptRequest = ({ requestId, weight, volume, quantity }) => {
     setIsLoading(true);
 
     try {
-      await contractsService.createContract(truckId, requestId);
+      await contractsService.createContract(truckId, request.id);
       setSuccessSnack("Contract created");
     } catch (err) {
       setErrorSnack(err.message);
