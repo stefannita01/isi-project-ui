@@ -3,7 +3,10 @@ import { apiService } from "./apiService";
 const uri = "trucks";
 
 export const trucksService = {
-  getAll: async () => apiService.get(uri),
+  getAll: async () => {
+    const response = await apiService.get(uri);
+    return response.map((item) => item.truck);
+  },
   getSuitableTrucks: async (requestId) =>
     apiService.get(`${uri}?requestId=${requestId}`),
   getTruck: async (truckId) => apiService.get(`${uri}/${truckId}`),
