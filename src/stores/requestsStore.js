@@ -4,6 +4,10 @@ import { requestsService } from "../services/requestsService";
 class RequestsStore {
   requests = [];
 
+  get newRequests() {
+    return this.requests.filter((request) => request.status === "NEW");
+  }
+
   constructor() {
     makeAutoObservable(this);
   }

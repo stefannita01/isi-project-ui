@@ -10,7 +10,7 @@ import { useRequestPointsLayer } from "../../../hooks/requestPointsLayer/useRequ
 
 const Requests = observer(() => {
   const {
-    requests,
+    newRequests: requests,
     getRequestById,
     initialize: initializeRequests,
   } = useContext(RequestsContext);
