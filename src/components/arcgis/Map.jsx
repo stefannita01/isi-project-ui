@@ -49,6 +49,7 @@ const Map = forwardRef(
     }, [mapDiv.current]);
 
     useEffect(() => {
+      view.popup.close();
       map.layers.length && map.removeAll();
       layers?.length && map.addMany(layers);
     }, [layers]);

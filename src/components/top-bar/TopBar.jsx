@@ -2,7 +2,7 @@ import { AppBar, Box, Toolbar, Button } from "@mui/material";
 import { authStore } from "../../stores/authStore";
 import { Link } from "react-router-dom";
 import { useContext, useEffect } from "react";
-import { RequestsContext } from "../../contexts/requestsContext";
+import { ContractsContext } from "../../contexts/contractsContext";
 import { observer } from "mobx-react-lite";
 
 const NavButton = ({ to, children }) => {
@@ -16,10 +16,10 @@ const NavButton = ({ to, children }) => {
 };
 
 const TopBar = observer(({ role }) => {
-  const requestsStore = useContext(RequestsContext);
+  const contractsStore = useContext(ContractsContext);
   useEffect(() => {
-    requestsStore.initialize();
-  }, [requestsStore]);
+    contractsStore.initialize();
+  }, [contractsStore]);
 
   return (
     <>
@@ -38,7 +38,7 @@ const TopBar = observer(({ role }) => {
             <NavButton to="/">Home</NavButton>
             {role === "CLIENT" && (
               <>
-                {requestsStore.requests.length > 0 && (
+                {contractsStore.contracts.length > 0 && (
                   <NavButton to="/track">Track</NavButton>
                 )}
               </>

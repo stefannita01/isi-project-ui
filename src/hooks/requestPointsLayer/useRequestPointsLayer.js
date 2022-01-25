@@ -1,4 +1,3 @@
-import Graphic from "@arcgis/core/Graphic";
 import { useEffect, useMemo, useState } from "react";
 import { requestPointsFeatureLayerFactory } from "./requestPointsFeatureLayerFactory";
 

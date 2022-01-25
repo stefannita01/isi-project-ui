@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, useRef } from "react";
 import { RequestsContext } from "../../../contexts/requestsContext";
 import { observer } from "mobx-react-lite";
 import RequestCard from "./RequestCard";
@@ -9,7 +9,12 @@ import { useTrucksLayer } from "../../../hooks/trucksLayer/useTrucksLayer";
 import { useRequestPointsLayer } from "../../../hooks/requestPointsLayer/useRequestPointsLayer";
 
 const Requests = observer(() => {
-  const { requests, getRequestById } = useContext(RequestsContext);
+  const {
+    requests,
+    getRequestById,
+    initialize: initializeRequests,
+  } = useContext(RequestsContext);
+  const mapViewRef = useRef();
   const [expanded, setExpanded] = useState(null);
   const [trucks, setTrucks] = useState(trucksStore.trucks);
   const [request, setRequest] = useState(null);
@@ -25,6 +30,16 @@ const Requests = observer(() => {
     setTrucks(trucks);
     setRequest(expanded ? await getRequestById(expanded) : null);
   };
+
+  useEffect(() => {
+    const initRequestsStore = async () => {
+      await initializeRequests();
+    };
+
+    if (!requests.length) {
+      initRequestsStore();
+    }
+  });
 
   useEffect(() => {
     const initTrucksStore = async () => {
@@ -46,12 +61,16 @@ const Requests = observer(() => {
         <Box sx={{ display: "flex" }}>
           <>
             <Box sx={{ width: "75%", marginRight: "16px" }}>
-              <Map layers={[trucksLayer, requestPointsLayer]} />
+              <Map
+                ref={mapViewRef}
+                layers={[trucksLayer, requestPointsLayer]}
+              />
             </Box>
             <Box sx={{ width: "25%" }}>
               {requests.map((request) => (
                 <RequestCard
                   key={request.id}
+                  mapViewRef={mapViewRef}
                   expanded={expanded === request.id}
                   onChange={() => handleAccordionExpand(request.id)}
                   request={request}

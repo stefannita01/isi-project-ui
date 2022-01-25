@@ -22,6 +22,23 @@ class TrucksStore {
     });
     return truck;
   };
+
+  updateTruck = async (truckDetails) => {
+    const truckIndex = this.trucks.findIndex(
+      (truck) => truck.id === truckDetails.id
+    );
+
+    const newTruck = await trucksService.updateTruck(truckDetails);
+    runInAction(() => {
+      this.trucks = [
+        ...this.trucks.slice(0, truckIndex),
+        newTruck,
+        ...this.trucks.slice(truckIndex + 1),
+      ];
+    });
+
+    return newTruck;
+  };
 }
 
 export const trucksStore = new TrucksStore();

@@ -18,6 +18,23 @@ class RequestsStore {
     return remote;
   };
 
+  updateRequest = async (requestDetails) => {
+    const requestIndex = this.requests.findIndex(
+      (request) => request.id === requestDetails.id
+    );
+
+    const newRequest = await requestsService.updateRequest(requestDetails);
+    runInAction(() => {
+      this.requests = [
+        ...this.requests.slice(0, requestIndex),
+        newRequest,
+        ...this.requests.slice(requestIndex + 1),
+      ];
+    });
+
+    return newRequest;
+  };
+
   initialize = async () => {
     let requests;
     try {

@@ -15,11 +15,12 @@ export const useTrucksLayer = (trucks) => {
               latitude: truck.position.latitude,
               longitude: truck.position.longitude,
             },
-            attributes: {
-              id: truck.id,
+            attributes: (() => ({
+              truckId: truck.id,
+              type: "truck",
               location: truck.position.address,
               busy: truck.busy ? 1 : 0,
-            },
+            }))(),
           })
       )
     );

@@ -3,6 +3,8 @@ import { apiService } from "./apiService";
 const uri = "contracts";
 
 export const contractsService = {
-  createContract: async (truckId, requestId) =>
-    apiService.post(uri, { truckId, requestId }),
+  getAll: async () => apiService.get(uri),
+  createContract: async (truckId, requestId, price) =>
+    apiService.post(uri, { truckId, requestId, price }),
+  updateContract: async (contract) => apiService.put(uri, { contract }),
 };

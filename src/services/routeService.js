@@ -13,6 +13,7 @@ export const routeService = {
       }),
     });
     const response = await route.solve(serviceUrl, routeParams);
+
     response.routeResults.forEach(function (result) {
       result.route.symbol = {
         type: "simple-line",

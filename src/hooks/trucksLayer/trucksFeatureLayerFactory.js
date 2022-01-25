@@ -5,12 +5,12 @@ import {
   AVAILABLE_TRUCK,
 } from "../../constants/graphicsConstants";
 
-const trucksFeatureLayerFactory = (trucksGraphics) =>
-  new FeatureLayer({
+const trucksFeatureLayerFactory = (trucksGraphics, truckActions = []) => {
+  return new FeatureLayer({
     source: trucksGraphics,
     fields: [
       {
-        name: "id",
+        name: "truckId",
         alias: "id",
         type: "oid",
       },
@@ -25,10 +25,10 @@ const trucksFeatureLayerFactory = (trucksGraphics) =>
         type: "integer",
       },
     ],
-    objectIdField: "id",
+    objectIdField: "truckId",
     popupTemplate: {
       title: ({ graphic: { attributes } }) =>
-        `Truck #${attributes.id}, ${attributes.busy ? "busy" : "free"}`,
+        `Truck #${attributes.truckId}, ${attributes.busy ? "busy" : "free"}`,
       content: "{location}",
       outFields: ["*"],
     },
@@ -48,5 +48,6 @@ const trucksFeatureLayerFactory = (trucksGraphics) =>
       ],
     },
   });
+};
 
 export { trucksFeatureLayerFactory };

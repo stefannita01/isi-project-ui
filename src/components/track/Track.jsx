@@ -1,53 +1,62 @@
 import { useRef, useEffect, useContext, useState, useMemo } from "react";
-import { RequestsContext } from "../../contexts/requestsContext";
 import { observer } from "mobx-react-lite";
 import { routeService } from "../../services/routeService";
 import { requestRouteFeatureLayerFactory } from "./requestRouteFeatureLayerFactory";
-import { requestPointsFeatureLayerFactory } from "./requestPointsFeatureLayerFactory";
 import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Map from "../arcgis/Map";
 import Graphic from "@arcgis/core/Graphic";
-import { BUSY_TRUCK } from "../../constants/graphicsConstants";
+import { AVAILABLE_TRUCK, BUSY_TRUCK } from "../../constants/graphicsConstants";
+import { ContractsContext } from "../../contexts/contractsContext";
+import { useRequestPointsLayer } from "../../hooks/requestPointsLayer/useRequestPointsLayer";
+import { trucksStore } from "../../stores/trucksStore";
+import { requestsStore } from "../../stores/requestsStore";
 
 const Track = observer(() => {
-  const { requests, getRequestById } = useContext(RequestsContext);
+  const {
+    inProgressContracts: contracts,
+    getContractById,
+    updateContract,
+  } = useContext(ContractsContext);
+  const { updateTruck } = trucksStore;
+
   const mapViewRef = useRef();
-  const [trackedRequestId, setTrackedRequestId] = useState(null);
-  const [trackedRequestPointsGraphics, setTrackedRequestPointsGraphics] =
-    useState([]);
+  const [trackedContractId, setTrackedContractId] = useState(null);
+
+  const [trackedRequest, setTrackedRequest] = useState(null);
   const [trackedRequestRouteGraphic, setTrackedRequestRouteGraphic] = useState(
     []
   );
-  const [currentTruckPoint, setCurrentTruckPoint] = useState(null);
   const [currentTimeouts, setCurrentTimeouts] = useState([]);
+  const [currentTruckPoint, setCurrentTruckPoint] = useState(null);
+  const [contract, setContract] = useState(null);
 
-  // new route id selected: get request points
-  useEffect(async () => {
-    if (trackedRequestId !== null) {
-      const request = await getRequestById(trackedRequestId);
-      const requestGraphics = [
-        request.pickupLocation,
-        request.dropOffLocation,
-      ].map(pointToGraphic);
-
-      setTrackedRequestPointsGraphics(requestGraphics);
+  useEffect(() => {
+    const setLayers = async () => {
+      const contract = await getContractById(trackedContractId);
+      setContract(contract);
       currentTimeouts.forEach(clearTimeout);
       setCurrentTimeouts([]);
-    }
-  }, [trackedRequestId]);
+      if (trackedContractId !== null) {
+        setTrackedRequest(contract.request);
+        const stops = [
+          contract.truck.position,
+          contract.request.pickupLocation,
+          contract.request.dropOffLocation,
+        ].map(pointToGraphic);
+        const route = await routeService.getRoute(stops);
+        setTrackedRequestRouteGraphic([route]);
+      } else {
+        setTrackedRequest(null);
+        setTrackedRequestRouteGraphic([]);
+      }
+    };
 
-  // new request points: get request route
-  useEffect(async () => {
-    const route = await routeService.getRoute(trackedRequestPointsGraphics);
-    setTrackedRequestRouteGraphic([route]);
-  }, [trackedRequestPointsGraphics]);
+    setLayers();
+  }, [trackedContractId]);
 
-  const requestPointsLayer = useMemo(
-    () => requestPointsFeatureLayerFactory(trackedRequestPointsGraphics),
-    [trackedRequestPointsGraphics]
-  );
+  const requestPointsLayer = useRequestPointsLayer(trackedRequest);
 
   const routeLayer = useMemo(
     () => requestRouteFeatureLayerFactory(trackedRequestRouteGraphic),
@@ -56,9 +65,10 @@ const Track = observer(() => {
 
   useEffect(() => {
     if (trackedRequestRouteGraphic.length) {
+      const paths = trackedRequestRouteGraphic[0].geometry.paths.flat();
       setCurrentTimeouts(
-        trackedRequestRouteGraphic[0].geometry.paths[0].map(([x, y], i) =>
-          setTimeout(() => {
+        paths.map(([x, y], i) =>
+          setTimeout(async () => {
             setCurrentTruckPoint(
               new Graphic({
                 geometry: {
@@ -69,6 +79,35 @@ const Track = observer(() => {
                 symbol: BUSY_TRUCK,
               })
             );
+
+            if (i === paths.length - 1) {
+              const newTruck = await updateTruck({
+                ...contract.truck,
+                busy: false,
+                position: contract.request.dropOffLocation,
+              });
+              setCurrentTruckPoint(
+                new Graphic({
+                  geometry: {
+                    type: "point",
+                    longitude: newTruck.position.longitude,
+                    latitude: newTruck.position.latitude,
+                  },
+                  symbol: AVAILABLE_TRUCK,
+                })
+              );
+              const updatedRequest = await requestsStore.updateRequest({
+                ...contract.request,
+                status: "COMPLETED",
+              });
+              updateContract({
+                ...contract,
+                truck: newTruck,
+                request: updatedRequest,
+              });
+              setTrackedContractId(null);
+              setCurrentTruckPoint(null);
+            }
           }, i * 500)
         )
       );
@@ -85,17 +124,17 @@ const Track = observer(() => {
     <>
       <h2>Select a request to track</h2>
       <RadioGroup
-        value={trackedRequestId}
+        value={trackedContractId}
         onChange={(e) => {
-          setTrackedRequestId(e.target.value);
+          setTrackedContractId(parseInt(e.target.value));
         }}
       >
-        {requests.map((request) => (
+        {contracts.map((contract) => (
           <FormControlLabel
-            key={request.id}
-            value={request.id}
+            key={contract.id}
+            value={parseInt(contract.id)}
             control={<Radio />}
-            label={getRequestLabel(request)}
+            label={getRequestLabel(contract)}
           />
         ))}
       </RadioGroup>
@@ -120,5 +159,5 @@ const pointToGraphic = ({ longitude, latitude, id }, i) => ({
   },
 });
 
-const getRequestLabel = (request) =>
-  `Request #${request.id}: ${request.quantity} ${request.product.type} from ${request.pickupLocation.address} to ${request.dropOffLocation.address}`;
+const getRequestLabel = ({ request, id }) =>
+  `Request #${id}: ${request.quantity} ${request.product.type} from ${request.pickupLocation.address} to ${request.dropOffLocation.address}`;
